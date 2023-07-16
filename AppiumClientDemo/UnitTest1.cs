@@ -1,6 +1,7 @@
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Enums;
+using System.IO;
 
 namespace AppiumClientDemo
 {
@@ -8,16 +9,32 @@ namespace AppiumClientDemo
     {
 
         private AppiumDriver<AndroidElement> _driver;
+        private string _username;
 
         [SetUp]
         public void Setup()
         {
-            var appPath = @"C:\Users\******\APK's\nimbl Pocket Money App & Card_1.5.37_apkcombo.com.apk";
+            var directory = Directory.GetCurrentDirectory();
+            string newPath = Path.GetFullPath(Path.Combine(directory, @"..\..\..\"));
+            try
+            {
+                using (var sr = new StreamReader($@"{newPath}\Username.txt"))
+                {
+                    _username = sr.ReadToEnd();
+                }
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Username.txt is not present, create your own file with only your windows username in it");
+                Console.WriteLine(e.Message);
+            }
+
+            var appPath = $@"C:\Users\{_username}\APK's\Deco UI - Ionic 6 App Template_3.4.8_apkcombo.com.apk";
 
             var driverOption = new AppiumOptions();
             driverOption.AddAdditionalCapability("platformName", "Android");
             driverOption.AddAdditionalCapability("appium:deviceName", "Pixel 4 API 31 Android 12 INTEL");
-            driverOption.AddAdditionalCapability("appium:app", @"C:\Users\******\APK's\Deco UI - Ionic 6 App Template_3.4.8_apkcombo.com.apk");
+            driverOption.AddAdditionalCapability("appium:app", appPath);
             driverOption.AddAdditionalCapability("appium:automationName", "UiAutomator2");
 
             _driver = new AndroidDriver<AndroidElement>(new Uri("http://127.0.0.1:4723/"), driverOption);
